@@ -1,0 +1,9 @@
+{
+  "name": "hot-streak-online",
+  "version": "1.0.0",
+  "private": true,
+  "description": "HOT STREAK online room prototype",
+  "main": "server.js",
+  "scripts": {"start": "node server.js"},
+  "dependencies": {"express": "^5.1.0", "socket.io": "^4.8.1"}
+}

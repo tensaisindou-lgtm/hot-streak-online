@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>🔥 HOT STREAK 自作版</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+            padding: 20px;
+
+            background:
+                radial-gradient(
+                    circle at top,
+                    #292929,
+                    #171717 55%
+                );
+
+            color: white;
+
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+        }
+
+
+        h1 {
+
+            text-align: center;
+
+            color: #ff5722;
+
+            margin-bottom: 20px;
+
+            text-shadow:
+                0 0 15px
+                rgba(255, 87, 34, 0.45);
+
+        }
+
+
+        /* ========================================
+           🏁 レース
+        ======================================== */
+
+        .race {
+
+            width: 100%;
+
+            max-width: 1100px;
+
+            margin: auto;
+
+            overflow-x: auto;
+
+        }
+
+
+        .lane {
+
+            position: relative;
+
+            display: flex;
+
+            height: 80px;
+
+            margin-bottom: 12px;
+
+            min-width: 1100px;
+
+        }
+
+
+        .lane-name {
+
+            width: 100px;
+
+            flex-shrink: 0;
+
+            display: flex;
+
+            align-items: center;
+
+            font-weight: bold;
+
+            font-size: 16px;
+
+        }
+
+
+        .track {
+
+            position: relative;
+
+            display: flex;
+
+            flex-shrink: 0;
+
+        }
+
+
+        /* ========================================
+           🟫 マス
+        ======================================== */
+
+        .cell {
+
+            width: 64px;
+
+            height: 60px;
+
+            margin: 10px 2px;
+
+            flex-shrink: 0;
+
+            border-radius: 8px;
+
+            background: #383838;
+
+            border: 2px solid #555;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            color: #777;
+
+            font-size: 12px;
+
+        }
+
+
+        .cell.star {
+
+            background: #4a3510;
+
+            border-color: #ffca28;
+
+            color: #ffca28;
+
+            font-size: 22px;
+
+            box-shadow:
+                0 0 12px
+                rgba(255, 202, 40, 0.25);
+
+        }
+
+
+        .cell.start {
+
+            background: #1b5e20;
+
+            border-color: #4caf50;
+
+            color: white;
+
+            font-weight: bold;
+
+        }
+
+
+        .cell.goal {
+
+            background: #5d1a1a;
+
+            border-color: #f44336;
+
+            color: white;
+
+            font-weight: bold;
+
+            box-shadow:
+                0 0 12px
+                rgba(244, 67, 54, 0.25);
+
+        }
+
+
+        /* ========================================
+           🏃 キャラクター
+        ======================================== */
+
+        .runner {
+
+            position: absolute;
+
+            width: 50px;
+
+            height: 50px;
+
+            top: 5px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 36px;
+
+            line-height: 1;
+
+            border-radius: 8px;
+
+            z-index: 10;
+
+            transition:
+                left 0.18s ease-out,
+                top 0.18s ease-out,
+                filter 0.35s ease,
+                opacity 0.35s ease;
+
+            will-change:
+                left,
+                transform;
+
+        }
+
+
+        .gobura {
+            background: #8bc34a;
+        }
+
+
+        .mum {
+            background: #e91e63;
+        }
+
+
+        .harley {
+            background: #2196f3;
+        }
+
+
+        .dunkle {
+            background: #ff9800;
+        }
+
+
+        /* ========================================
+           🏃 移動モーション
+        ======================================== */
+
+        .runner.moving {
+
+            animation:
+                runnerMove
+                0.18s
+                ease-out;
+
+        }
+
+
+        @keyframes runnerMove {
+
+            0% {
+
+                transform:
+                    scale(0.9)
+                    translateY(3px);
+
+            }
+
+            45% {
+
+                transform:
+                    scale(1.08)
+                    translateY(-5px);
+
+            }
+
+            100% {
+
+                transform:
+                    scale(1)
+                    translateY(0);
+
+            }
+
+        }
+
+
+        /* ========================================
+           🤸 よろけモーション
+        ======================================== */
+
+        .runner.stumbling {
+
+            animation:
+                runnerStumble
+                0.65s
+                ease-in-out;
+
+        }
+
+
+        @keyframes runnerStumble {
+
+            0% {
+
+                transform:
+                    rotate(0deg)
+                    translateX(0);
+
+            }
+
+            18% {
+
+                transform:
+                    rotate(-12deg)
+                    translateX(-7px);
+
+            }
+
+            38% {
+
+                transform:
+                    rotate(14deg)
+                    translateX(9px);
+
+            }
+
+            58% {
+
+                transform:
+                    rotate(-10deg)
+                    translateX(-6px);
+
+            }
+
+            78% {
+
+                transform:
+                    rotate(7deg)
+                    translateX(4px);
+
+            }
+
+            100% {
+
+                transform:
+                    rotate(0deg)
+                    translateX(0);
+
+            }
+
+        }
+
+
+        /* ========================================
+           🤕 転倒
+        ======================================== */
+
+        .runner.fallen {
+
+            animation:
+                fallDown
+                0.45s
+                ease-out;
+
+        }
+
+
+        @keyframes fallDown {
+
+            0% {
+
+                transform:
+                    rotate(0deg)
+                    scale(1);
+
+            }
+
+            45% {
+
+                transform:
+                    rotate(105deg)
+                    scale(1.08);
+
+            }
+
+            100% {
+
+                transform:
+                    rotate(90deg)
+                    scale(1);
+
+            }
+
+        }
+
+
+        /* ========================================
+           🏁 ゴール演出
+        ======================================== */
+
+        .runner.goal {
+
+            animation:
+                goalCelebrate
+                0.8s
+                ease-in-out
+                2;
+
+            box-shadow:
+                0 0 0 0
+                rgba(255, 215, 0, 0.8);
+
+        }
+
+
+        @keyframes goalCelebrate {
+
+            0% {
+
+                transform:
+                    scale(1)
+                    rotate(0deg);
+
+            }
+
+            25% {
+
+                transform:
+                    scale(1.18)
+                    rotate(-8deg);
+
+            }
+
+            50% {
+
+                transform:
+                    scale(1.05)
+                    rotate(8deg);
+
+            }
+
+            75% {
+
+                transform:
+                    scale(1.18)
+                    rotate(-5deg);
+
+            }
+
+            100% {
+
+                transform:
+                    scale(1)
+                    rotate(0deg);
+
+            }
+
+        }
+
+
+        /* ========================================
+           💀 コースアウト
+        ======================================== */
+
+        .runner.eliminated {
+
+            filter:
+                grayscale(1)
+                brightness(0.45);
+
+            opacity: 0.55;
+
+            background: #555 !important;
+
+            border: 3px solid #777;
+
+            transform:
+                rotate(90deg)
+                scale(0.9);
+
+        }
+
+
+        .runner.eliminated::after {
+
+            content: "❌";
+
+            position: absolute;
+
+            font-size: 28px;
+
+            font-weight: bold;
+
+            color: #ff3333;
+
+            text-shadow:
+                0 0 5px #000,
+                0 0 10px #000;
+
+            top: 50%;
+
+            left: 50%;
+
+            transform:
+                translate(-50%, -50%);
+
+            z-index: 20;
+
+        }
+
+
+        /* ========================================
+           🎴 カードエリア
+        ======================================== */
+
+        .card-area {
+
+            max-width: 700px;
+
+            margin: 25px auto 10px;
+
+            display: flex;
+
+            justify-content: center;
+
+            perspective: 1000px;
+
+        }
+
+
+        #card {
+
+            position: relative;
+
+            overflow: hidden;
+
+            width: 420px;
+
+            min-height: 180px;
+
+            border-radius: 18px;
+
+            border: 3px solid #ff5722;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #2b2b2b,
+                    #111
+                );
+
+            box-shadow:
+                0 8px 30px
+                rgba(255, 87, 34, 0.25);
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            justify-content: center;
+
+            text-align: center;
+
+            padding: 20px;
+
+            transform-style: preserve-3d;
+
+        }
+
+
+        .card-back {
+
+            font-size: 72px;
+
+            opacity: 0.9;
+
+            animation:
+                cardIdle
+                1.8s
+                ease-in-out
+                infinite;
+
+        }
+
+
+        @keyframes cardIdle {
+
+            0%,
+            100% {
+
+                transform:
+                    translateY(0)
+                    rotate(-2deg);
+
+            }
+
+            50% {
+
+                transform:
+                    translateY(-6px)
+                    rotate(2deg);
+
+            }
+
+        }
+
+
+        .card-content {
+
+            position: relative;
+
+            z-index: 3;
+
+        }
+
+
+        .card-type {
+
+            color: #ff7043;
+
+            font-size: 14px;
+
+            font-weight: bold;
+
+            letter-spacing: 3px;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .card-main {
+
+            font-size: 26px;
+
+            font-weight: bold;
+
+            color: white;
+
+        }
+
+
+        /* ========================================
+           ✨ カード光
+        ======================================== */
+
+        .card-shine {
+
+            position: absolute;
+
+            top: -80%;
+
+            left: -30%;
+
+            width: 45%;
+
+            height: 250%;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255,255,255,0.65),
+                    transparent
+                );
+
+            transform:
+                rotate(25deg);
+
+            opacity: 0;
+
+            z-index: 2;
+
+        }
+
+
+        .card-flip {
+
+            animation:
+                cardFlip
+                0.85s
+                cubic-bezier(
+                    0.2,
+                    0.8,
+                    0.25,
+                    1
+                );
+
+        }
+
+
+        .card-flip .card-shine {
+
+            animation:
+                cardShine
+                0.85s
+                ease;
+
+        }
+
+
+        @keyframes cardFlip {
+
+            0% {
+
+                transform:
+                    perspective(700px)
+                    rotateY(180deg)
+                    translateY(25px)
+                    scale(0.75);
+
+                opacity: 0;
+
+            }
+
+            35% {
+
+                transform:
+                    perspective(700px)
+                    rotateY(90deg)
+                    translateY(-15px)
+                    scale(1.08);
+
+                opacity: 0.5;
+
+            }
+
+            65% {
+
+                transform:
+                    perspective(700px)
+                    rotateY(-12deg)
+                    translateY(-5px)
+                    scale(1.03);
+
+                opacity: 1;
+
+            }
+
+            100% {
+
+                transform:
+                    perspective(700px)
+                    rotateY(0deg)
+                    translateY(0)
+                    scale(1);
+
+                opacity: 1;
+
+            }
+
+        }
+
+
+        @keyframes cardShine {
+
+            0% {
+
+                left: -60%;
+
+                opacity: 0;
+
+            }
+
+            35% {
+
+                opacity: 0.9;
+
+            }
+
+            100% {
+
+                left: 130%;
+
+                opacity: 0;
+
+            }
+
+        }
+
+
+        /* ========================================
+           🎨 カード種類別
+        ======================================== */
+
+        #card.card-star {
+
+            border-color: #ffca28;
+
+            background:
+                radial-gradient(
+                    circle,
+                    #5c4510,
+                    #17130a
+                );
+
+            box-shadow:
+                0 0 35px
+                rgba(255, 202, 40, 0.55);
+
+        }
+
+
+        #card.card-star .card-type {
+            color: #ffca28;
+        }
+
+
+        #card.card-fall {
+
+            border-color: #f44336;
+
+            background:
+                radial-gradient(
+                    circle,
+                    #5a1717,
+                    #171010
+                );
+
+            box-shadow:
+                0 0 30px
+                rgba(244, 67, 54, 0.45);
+
+        }
+
+
+        #card.card-fall .card-type {
+            color: #ff5252;
+        }
+
+
+        #card.card-heal {
+
+            border-color: #4caf50;
+
+            background:
+                radial-gradient(
+                    circle,
+                    #174d20,
+                    #101710
+                );
+
+            box-shadow:
+                0 0 30px
+                rgba(76, 175, 80, 0.45);
+
+        }
+
+
+        #card.card-heal .card-type {
+            color: #69f06f;
+        }
+
+
+        #card.card-turn {
+
+            border-color: #ab47bc;
+
+            background:
+                radial-gradient(
+                    circle,
+                    #3f1647,
+                    #140e16
+                );
+
+            box-shadow:
+                0 0 30px
+                rgba(171, 71, 188, 0.45);
+
+        }
+
+
+        #card.card-turn .card-type {
+            color: #ce93d8;
+        }
+
+
+        #card.card-stumble {
+
+            border-color: #29b6f6;
+
+            background:
+                radial-gradient(
+                    circle,
+                    #123d54,
+                    #0c1418
+                );
+
+            box-shadow:
+                0 0 30px
+                rgba(41, 182, 246, 0.4);
+
+        }
+
+
+        #card.card-stumble .card-type {
+            color: #4fc3f7;
+        }
+
+
+        #card.card-allmove {
+
+            border-color: #ff7043;
+
+            background:
+                radial-gradient(
+                    circle,
+                    #59230f,
+                    #17100d
+                );
+
+            box-shadow:
+                0 0 35px
+                rgba(255, 112, 67, 0.5);
+
+        }
+
+
+        #card.card-allmove .card-type {
+            color: #ffab91;
+        }
+
+
+        #card.card-move {
+            border-color: #ff5722;
+        }
+
+
+        /* ========================================
+           👀 公開デッキ
+        ======================================== */
+
+        .public-deck {
+
+            width: 100%;
+            max-width: 1100px;
+            margin: 25px auto 10px;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid #444;
+            border-radius: 12px;
+
+        }
+
+
+        .public-deck-title {
+
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
+
+        }
+
+
+        .public-deck-subtitle {
+
+            color: #aaa;
+            font-size: 13px;
+            margin-bottom: 12px;
+
+        }
+
+
+        .public-deck-list {
+
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px;
+
+        }
+
+
+        .public-deck-card {
+
+            display: grid;
+            grid-template-columns: 28px 72px 1fr;
+            align-items: center;
+            gap: 8px;
+            min-height: 38px;
+            padding: 6px 9px;
+            background: #252525;
+            border: 1px solid #3f3f3f;
+            border-radius: 8px;
+            font-size: 12px;
+
+        }
+
+
+        .public-deck-number {
+
+            color: #888;
+            text-align: center;
+            font-weight: bold;
+
+        }
+
+
+        .public-deck-type {
+
+            color: #ffab91;
+            font-weight: bold;
+            white-space: nowrap;
+
+        }
+
+
+        .public-deck-text {
+
+            color: #ddd;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+        }
+
+
+        .public-card-row {
+
+            display: grid;
+            grid-template-columns: 32px 90px 1fr;
+            gap: 10px;
+            align-items: center;
+            padding: 8px 10px;
+            background: #292929;
+            border: 1px solid #3d3d3d;
+            border-radius: 8px;
+            min-width: 0;
+
+        }
+
+        .public-card-number {
+            color: #888;
+            font-weight: bold;
+        }
+
+        .public-card-type {
+            color: #ffab91;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .public-card-text {
+            color: #ddd;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .public-deck-empty {
+
+            color: #888;
+            padding: 10px;
+
+        }
+
+
+        @media (max-width: 700px) {
+
+            .public-deck-list {
+                grid-template-columns: 1fr;
+            }
+
+            .public-deck-card {
+                grid-template-columns: 28px 68px 1fr;
+            }
+
+        }
+
+
+
+        /* ========================================
+           🃏 デッキ構築
+        ======================================== */
+
+        .deck-setup {
+            display: none;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 22px;
+            background: #202020;
+            border: 1px solid #444;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .deck-setup.active {
+            display: block;
+        }
+
+        .deck-setup-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #ffab91;
+        }
+
+        .player-select {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            font-weight: bold;
+        }
+
+        #player-count {
+            padding: 9px 14px;
+            border-radius: 9px;
+            border: 1px solid #555;
+            background: #111;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .setup-start-button {
+            background: #ff5722;
+            color: #fff;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .private-hand {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            max-width: 760px;
+            margin: auto;
+        }
+
+        .private-card {
+            min-height: 100px;
+            padding: 14px;
+            border: 1px solid #555;
+            border-radius: 12px;
+            background: #2b2b2b;
+            color: #fff;
+            cursor: pointer;
+            transition: transform .15s ease, border-color .15s ease;
+        }
+
+        .private-card:hover {
+            transform: translateY(-3px);
+            border-color: #ff7043;
+        }
+
+        .private-card-type,
+        .private-card-text {
+            display: block;
+        }
+
+        .private-card-type {
+            color: #ffab91;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .private-card-text {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .public-deck-closed {
+            padding: 14px;
+            color: #aaa;
+            font-weight: bold;
+        }
+
+        @media (max-width: 700px) {
+            .private-hand {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ========================================
+           🎮 コントロール
+        ======================================== */
+
+        .controls {
+
+            max-width: 1000px;
+
+            margin: 20px auto 25px;
+
+            text-align: center;
+
+        }
+
+
+        .draw-button {
+
+            background: #ff5722;
+
+            color: white;
+
+            border: none;
+
+            padding: 15px 35px;
+
+            font-size: 18px;
+
+            font-weight: bold;
+
+            border-radius: 10px;
+
+            cursor: pointer;
+
+            transition:
+                background 0.2s ease,
+                transform 0.1s ease,
+                box-shadow 0.2s ease;
+
+            box-shadow:
+                0 5px 15px
+                rgba(255, 87, 34, 0.25);
+
+        }
+
+
+        .draw-button:hover {
+
+            background: #ff7043;
+
+            box-shadow:
+                0 7px 20px
+                rgba(255, 87, 34, 0.4);
+
+        }
+
+
+        .draw-button:active {
+
+            transform: scale(0.96);
+
+        }
+
+
+        .draw-button:disabled {
+
+            background: #555;
+
+            cursor: wait;
+
+            box-shadow: none;
+
+        }
+
+
+        #deck-count {
+
+            margin-top: 12px;
+
+            color: #aaa;
+
+            font-size: 15px;
+
+        }
+
+
+        #message {
+
+            margin-top: 18px;
+
+            min-height: 30px;
+
+            font-size: 20px;
+
+            font-weight: bold;
+
+        }
+
+
+        /* ========================================
+           📜 カード履歴
+        ======================================== */
+
+        .history {
+
+            max-width: 700px;
+
+            margin: 25px auto;
+
+            padding: 18px;
+
+            background: #222;
+
+            border-radius: 14px;
+
+            border: 1px solid #3d3d3d;
+
+        }
+
+
+        .history-title {
+
+            font-size: 18px;
+
+            font-weight: bold;
+
+            color: #ff7043;
+
+            margin-bottom: 12px;
+
+        }
+
+
+        .history-item {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 9px 8px;
+
+            border-bottom:
+                1px solid #3b3b3b;
+
+            animation:
+                historyIn
+                0.35s
+                ease;
+
+        }
+
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+
+        .history-type {
+
+            min-width: 82px;
+
+            font-size: 11px;
+
+            font-weight: bold;
+
+            letter-spacing: 1px;
+
+            color: #aaa;
+
+        }
+
+
+        .history-text {
+
+            font-size: 14px;
+
+            color: #eee;
+
+        }
+
+
+        .history-empty {
+
+            color: #777;
+
+            text-align: center;
+
+            padding: 12px;
+
+        }
+
+
+        .history-item.star .history-type {
+            color: #ffca28;
+        }
+
+
+        .history-item.fall .history-type {
+            color: #ff5252;
+        }
+
+
+        .history-item.heal .history-type {
+            color: #69f06f;
+        }
+
+
+        .history-item.turn .history-type {
+            color: #ce93d8;
+        }
+
+
+        .history-item.stumble .history-type {
+            color: #4fc3f7;
+        }
+
+
+        .history-item.all-move .history-type {
+            color: #ffab91;
+        }
+
+
+        @keyframes historyIn {
+
+            from {
+
+                opacity: 0;
+
+                transform:
+                    translateY(-8px);
+
+            }
+
+            to {
+
+                opacity: 1;
+
+                transform:
+                    translateY(0);
+
+            }
+
+        }
+
+
+        /* ========================================
+           📊 現在位置
+        ======================================== */
+
+        .positions {
+
+            max-width: 600px;
+
+            margin: 30px auto;
+
+            padding: 15px;
+
+            background: #222;
+
+            border-radius: 12px;
+
+        }
+
+
+        .position-row {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            padding: 10px;
+
+            border-bottom:
+                1px solid #444;
+
+        }
+
+
+        .position-row:last-child {
+            border-bottom: none;
+        }
+
+
+        /* ========================================
+           📱 スマホ
+        ======================================== */
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 12px;
+            }
+
+
+            #card {
+
+                width: 95%;
+
+                min-height: 155px;
+
+            }
+
+
+            .card-main {
+                font-size: 21px;
+            }
+
+
+            .history-item {
+                gap: 7px;
+            }
+
+
+            .history-type {
+
+                min-width: 68px;
+
+                font-size: 9px;
+
+            }
+
+
+            .history-text {
+                font-size: 13px;
+            }
+
+        }
+
+    </style>
+
+<script>window.HOT_STREAK_ONLINE = true;</script>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+.online-panel{max-width:900px;margin:16px auto;padding:14px;border-radius:16px;background:rgba(255,255,255,.9);box-shadow:0 4px 18px rgba(0,0,0,.08)}
+.online-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:7px 0}.online-row input,.online-row select{padding:9px;border-radius:10px;border:1px solid #ccc}.online-btn{padding:9px 14px;border:0;border-radius:10px;cursor:pointer;font-weight:700}.online-status{font-weight:700}.room-code{font-size:1.35em;letter-spacing:2px}
+</style>
+</head>
+
+
+<body>
+
+
+    <h1>🔥 HOT STREAK</h1>
+
+<div class="online-panel" id="online-panel">
+  <div class="online-row"><strong>🌐 オンライン対戦</strong><span id="online-status" class="online-status">未接続</span></div>
+  <div class="online-row" id="online-lobby-controls">
+    <input id="online-name" maxlength="20" placeholder="名前（例：ぽよ）">
+    <select id="online-player-count"><option value="2">2人</option><option value="3">3人</option><option value="4">4人</option></select>
+    <button class="online-btn" onclick="onlineCreateRoom()">ルーム作成</button>
+    <input id="online-room-code" maxlength="6" placeholder="ルームコード">
+    <button class="online-btn" onclick="onlineJoinRoom()">参加</button>
+  </div>
+  <div class="online-row"><span id="online-room-info"></span></div>
+  <div id="online-players"></div>
+  <div class="online-row" id="online-actions" style="display:none"><button class="online-btn" onclick="onlineToggleReady()">READY</button><button class="online-btn" id="online-start" onclick="onlineStartSetup()" style="display:none">🃏 ゲーム開始</button></div>
+</div>
+
+
+
+
+    <!-- ========================================
+         🃏 デッキ構築フェーズ
+    ======================================== -->
+
+    <div id="deck-setup" class="deck-setup active">
+
+        <div class="player-select">
+            <label for="player-count">プレイヤー人数</label>
+            <select id="player-count">
+                <option value="2">2人</option>
+                <option value="3">3人</option>
+                <option value="4">4人</option>
+            </select>
+            <button class="setup-start-button" onclick="beginDeckSetup()">
+                🃏 公開14枚を作る
+            </button>
+        </div>
+
+        <div id="deck-setup-title" class="deck-setup-title">
+            公開14枚を作成するぽよ！
+        </div>
+
+        <div id="player-hand" class="private-hand"></div>
+
+    </div>
+
+
+    <!-- ========================================
+         🏁 レース
+    ======================================== -->
+
+    <div class="race">
+
+
+        <div class="lane">
+
+            <div class="lane-name">
+                🐸 ゴブラー
+            </div>
+
+            <div
+                class="track"
+                id="track-gobura"
+            >
+
+                <div
+                    id="gobura"
+                    class="runner gobura"
+                >
+                    🐸
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="lane">
+
+            <div class="lane-name">
+                🐷 マム
+            </div>
+
+            <div
+                class="track"
+                id="track-mum"
+            >
+
+                <div
+                    id="mum"
+                    class="runner mum"
+                >
+                    🐷
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="lane">
+
+            <div class="lane-name">
+                🐵 ハーレー
+            </div>
+
+            <div
+                class="track"
+                id="track-harley"
+            >
+
+                <div
+                    id="harley"
+                    class="runner harley"
+                >
+                    🐵
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="lane">
+
+            <div class="lane-name">
+                🐻 ダンクル
+            </div>
+
+            <div
+                class="track"
+                id="track-dunkle"
+            >
+
+                <div
+                    id="dunkle"
+                    class="runner dunkle"
+                >
+                    🐻
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================
+         👀 今回の公開デッキ
+    ======================================== -->
+
+    <div class="public-deck">
+
+        <div class="public-deck-title">
+            🃏 今回の公開デッキ：14枚
+        </div>
+
+        <div class="public-deck-subtitle">
+            今回のレースで使われる14枚。全員に公開されます。
+        </div>
+
+        <div
+            id="public-deck"
+            class="public-deck-list"
+        >
+            <div class="public-deck-empty">
+                公開デッキを準備中……
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ========================================
+         🎴 カード
+    ======================================== -->
+
+    <div class="card-area">
+
+        <div id="card">
+
+            <div class="card-back">
+                🎴
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================
+         🎮 コントロール
+    ======================================== -->
+
+    <div class="controls">
+
+        <button
+            class="draw-button"
+            onclick="drawCard()"
+            disabled
+        >
+            🎴 カードをめくる
+        </button>
+
+
+        <div id="deck-count">
+            レースデッキ残り：14枚 / 公開デッキ：14枚
+        </div>
+
+
+        <div id="message">
+            🔥 レーススタート！
+        </div>
+
+    </div>
+
+
+    <!-- ========================================
+         📜 カード履歴
+    ======================================== -->
+
+    <div class="history">
+
+        <div class="history-title">
+            📜 カード履歴
+        </div>
+
+        <div id="card-history">
+
+            <div class="history-empty">
+                まだカードを引いていません
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================
+         📊 現在位置
+    ======================================== -->
+
+    <div class="positions">
+
+
+        <div class="position-row">
+
+            <span>🐸 ゴブラー</span>
+
+            <span id="pos-gobura">
+                START
+            </span>
+
+        </div>
+
+
+        <div class="position-row">
+
+            <span>🐷 マム</span>
+
+            <span id="pos-mum">
+                START
+            </span>
+
+        </div>
+
+
+        <div class="position-row">
+
+            <span>🐵 ハーレー</span>
+
+            <span id="pos-harley">
+                START
+            </span>
+
+        </div>
+
+
+        <div class="position-row">
+
+            <span>🐻 ダンクル</span>
+
+            <span id="pos-dunkle">
+                START
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================
+         🎮 ゲーム本体
+    ======================================== -->
+
+    <script src="game_v7.js"></script>
+<script src="online.js"></script>
+
+
+</body>
+
+</html>
